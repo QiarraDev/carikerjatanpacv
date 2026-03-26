@@ -1,0 +1,81 @@
+# --- OS ---
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# --- IDEs ---
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+.project
+.classpath
+.settings/
+.nbproject/
+.externalToolBuilders/
+.metadata/
+.factorypath
+*.sublime-project
+*.sublime-workspace
+
+# --- NODE.JS (Backend - Express/NestJS) ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist/
+build/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+
+# --- SECRETS & CLOUD CREDENTIALS ---
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+.env.staging
+# AWS / Cloudinary / MongoDB credentials in .env are now protected
+
+# --- FLUTTER & DART (Frontend) ---
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/flutter_bundleflags.sh
+android/**/generated
+android/**/release
+android/**/debug
+.flutter-plugins
+.flutter-plugins-dependencies
+# Generated files
+*.g.dart
+*.freezed.dart
+
+# --- DATABASE (MongoDB / Local Storage) ---
+data/
+db/
+*.log
+*.lock
+*.mongodb.js
+
+# --- PYTHON (Optional Helpers) ---
+__pycache__/
+*.py[cod]
+.venv
+venv/
+ENV/
+
+# --- MISC ---
+tmp/
+temp/
+logs/
