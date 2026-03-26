@@ -17,26 +17,32 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
 
   void _login() async {
+    print('--- Flutter: Attempting login for ${_emailController.text}');
     setState(() => _isLoading = true);
     try {
       final response = await ApiService().login(
         _emailController.text,
         _passwordController.text,
       );
+      print('--- Flutter: Login response received: ${response.statusCode}');
       final token = response.data['access_token'];
+      final userId = response.data['user']['id'];
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('access_token', token);
+      await prefs.setString('user_id', userId);
 
       if (mounted) {
+        print('--- Flutter: Login Success, navigating to MainNavigation');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const MainNavigation()),
         );
       }
     } catch (e) {
+      print('--- Flutter: Login Error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Email atau Password Salah!')),
+          SnackBar(content: Text('Login Gagal: $e')),
         );
       }
     } finally {

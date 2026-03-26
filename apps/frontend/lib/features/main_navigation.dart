@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home/home_page.dart';
+import 'profile/profile_page.dart';
+import 'chat/chat_page.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -12,8 +14,8 @@ class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
   final List<Widget> _pages = [
     const HomePage(),
-    const Center(child: Text('Pesanan / Lamaran Saya')),
-    const Center(child: Text('Profil Saya')),
+    const ChatPage(),
+    const ProfilePage(),
   ];
 
   @override

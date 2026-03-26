@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/api_service.dart';
+import '../assessment/assessment_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -27,6 +29,38 @@ class _HomePageState extends State<HomePage> {
       });
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _applyJob(dynamic job) async {
+    // 1. Jalankan Ujian
+    final score = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AssessmentPage(jobId: job['_id'], jobTitle: job['title']),
+      ),
+    );
+
+    if (score != null) {
+      // 2. Submit Lamaran
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final userId = prefs.getString('user_id');
+        
+        await ApiService().submitApplication(userId!, job['_id'], 'https://mock-video-url.com');
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Lamaran Berhasil Dikirim!')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Gagal mengirim lamaran!')),
+          );
+        }
+      }
     }
   }
 
@@ -92,7 +126,7 @@ class _HomePageState extends State<HomePage> {
                                       .toList(),
                                 ),
                                 ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () => _applyJob(job),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF6366F1),
                                     foregroundColor: Colors.white,

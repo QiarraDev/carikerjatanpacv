@@ -38,6 +38,18 @@ class ApiService {
     return _dio.get('/jobs');
   }
 
+  Future<Response> getAssessment(String jobId) {
+    return _dio.get('/assessment/$jobId');
+  }
+
+  Future<Response> submitApplication(String userId, String jobId, String? videoUrl) {
+    return _dio.post('/applications', data: {
+      'user_id': userId,
+      'job_id': jobId,
+      'video_url': videoUrl ?? '',
+    });
+  }
+
   Future<Response> register(String name, String email, String password) {
     return _dio.post('/auth/register', data: {
       'name': name,

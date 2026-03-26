@@ -35,16 +35,20 @@ export class AuthService {
   }
 
   async login(email: string, pass: string) {
+    console.log('--- Login attempt for email:', email);
     const user = await this.usersService.findByEmail(email);
     if (!user) {
+      console.error('--- Login error: User not found for email:', email);
       throw new UnauthorizedException('Invalid credentials');
     }
 
     const isMatch = await bcrypt.compare(pass, user.password_hash);
     if (!isMatch) {
+      console.error('--- Login error: Password mismatch for email:', email);
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    console.log('--- Login success for email:', email);
     const payload = { email: user.email, sub: user._id };
     return {
       access_token: this.jwtService.sign(payload),
