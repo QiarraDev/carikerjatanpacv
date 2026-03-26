@@ -25,7 +25,7 @@ class _AssessmentPageState extends State<AssessmentPage> {
 
   void _loadQuestions() async {
     try {
-      final response = await ApiService()._dio.get('/assessment/${widget.jobId}');
+      final response = await ApiService().getAssessment(widget.jobId);
       setState(() {
         _questions = response.data;
         _isLoading = false;

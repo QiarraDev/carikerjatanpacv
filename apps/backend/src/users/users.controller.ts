@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Put, Body } from '@nestjs/common';
+import { Controller, Get, Param, Patch, Put, Body } from '@nestjs/common';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -15,8 +15,8 @@ export class UsersController {
     return this.usersService.update(id, { video_url: videoUrl });
   }
 
-  @Put(':id/skills')
-  async updateSkills(@Param('id') id: string, @Body('skills') skills: string[]) {
-    return this.usersService.update(id, { skills });
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() updateData: any) {
+    return this.usersService.update(id, updateData);
   }
 }

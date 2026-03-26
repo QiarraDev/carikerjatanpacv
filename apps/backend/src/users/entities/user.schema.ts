@@ -15,6 +15,18 @@ export class User extends Document {
   @Prop()
   video_url: string;
 
+  @Prop()
+  photo_url: string;
+
+  @Prop()
+  job_title: string;
+
+  @Prop()
+  location: string;
+
+  @Prop()
+  bio: string;
+
   @Prop([String])
   skills: string[];
 

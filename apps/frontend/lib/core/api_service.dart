@@ -52,9 +52,17 @@ class ApiService {
 
   Future<Response> register(String name, String email, String password) {
     return _dio.post('/auth/register', data: {
-      'name': name,
+      'full_name': name,
       'email': email,
       'password': password,
     });
+  }
+
+  Future<Response> getProfile(String userId) {
+    return _dio.get('/users/$userId');
+  }
+
+  Future<Response> updateProfile(String id, Map<String, dynamic> data) async {
+    return _dio.patch('/users/$id', data: data);
   }
 }
