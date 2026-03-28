@@ -3,7 +3,8 @@ import '../../core/api_service.dart';
 import 'role_selection_page.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+  final String? role;
+  const RegisterPage({super.key, this.role});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -17,20 +18,23 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void _register() async {
     setState(() => _isLoading = true);
-    try {
-      await ApiService().register(
+      final response = await ApiService().register(
         _nameController.text,
         _emailController.text,
         _passwordController.text,
+        role: widget.role,
       );
+      
+      final prefs = await SharedPreferences.getInstance();
+      if (widget.role != null) {
+        await prefs.setString('user_role', widget.role!);
+      }
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Registrasi Berhasil! Silakan Login.')),
         );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
-        );
+        Navigator.pop(context); // Go back to login
       }
     } catch (e) {
       print('--- Flutter: Register Error: $e');

@@ -1,13 +1,17 @@
-import { Controller, Post, Get, Body, Param } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { JobsService } from './jobs.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('jobs')
 export class JobsController {
   constructor(private readonly jobsService: JobsService) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Post()
-  async create(@Body() body: any) {
-    return this.jobsService.create(body);
+  async create(@Body() body: any, @Req() req: any) {
+    // 🔥 Attach recruiterId from JWT
+    const recruiterId = req.user.userId;
+    return this.jobsService.create({ ...body, recruiter_id: recruiterId });
   }
 
   @Get()

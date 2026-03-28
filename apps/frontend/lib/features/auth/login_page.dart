@@ -26,16 +26,20 @@ class _LoginPageState extends State<LoginPage> {
       );
       print('--- Flutter: Login response received: ${response.statusCode}');
       final token = response.data['access_token'];
-      final userId = response.data['user']['id'];
+      final user = response.data['user'];
+      final userId = user['id'];
+      final role = user['role'] ?? 'candidate';
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('access_token', token);
       await prefs.setString('user_id', userId);
+      await prefs.setString('user_role', role);
 
       if (mounted) {
-        print('--- Flutter: Login Success, navigating to MainNavigation');
+        print('--- Flutter: Login Success, navigating to MainNavigation as $role');
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainNavigation()),
+          MaterialPageRoute(builder: (context) => MainNavigation(initialRole: role)),
         );
       }
     } catch (e) {

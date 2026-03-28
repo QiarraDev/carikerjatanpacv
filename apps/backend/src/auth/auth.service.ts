@@ -10,7 +10,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(name: string, email: string, password: string) {
+  async register(name: string, email: string, password: string, role: string = 'candidate') {
     const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {
       throw new BadRequestException('Email already exists');
@@ -21,15 +21,17 @@ export class AuthService {
       name,
       email,
       password_hash: hashedPassword,
+      role,
     });
 
-    const payload = { email: user.email, sub: user._id };
+    const payload = { email: user.email, sub: user._id, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     };
   }
@@ -49,13 +51,14 @@ export class AuthService {
     }
 
     console.log('--- Login success for email:', email);
-    const payload = { email: user.email, sub: user._id };
+    const payload = { email: user.email, sub: user._id, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     };
   }

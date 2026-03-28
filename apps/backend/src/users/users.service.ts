@@ -23,4 +23,12 @@ export class UsersService {
   async update(id: string, updateData: Partial<User>): Promise<User | null> {
     return this.userModel.findByIdAndUpdate(id, updateData, { new: true }).exec();
   }
+
+  async getCandidates(): Promise<User[]> {
+    return this.userModel.find({ role: 'candidate' }).exec();
+  }
+
+  async findAll(): Promise<User[]> {
+    return this.userModel.find().exec();
+  }
 }

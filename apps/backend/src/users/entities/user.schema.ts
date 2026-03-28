@@ -30,6 +30,9 @@ export class User extends Document {
   @Prop([String])
   skills: string[];
 
+  @Prop({ default: 'candidate' })
+  role: string;
+
   @Prop({ type: Object, default: {} })
   test_scores: Map<string, number>;
 }

@@ -50,11 +50,12 @@ class ApiService {
     });
   }
 
-  Future<Response> register(String name, String email, String password) {
+  Future<Response> register(String name, String email, String password, {String? role}) {
     return _dio.post('/auth/register', data: {
       'full_name': name,
       'email': email,
       'password': password,
+      'role': role ?? 'candidate',
     });
   }
 

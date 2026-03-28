@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../home/candidate_home_page.dart';
-import '../home/recruiter_home_page.dart';
+import 'login_page.dart';
+import 'register_page.dart';
 import '../main_navigation.dart';
 
 class RoleSelectionScreen extends StatefulWidget {
@@ -15,17 +15,15 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
   @override
   void initState() {
     super.initState();
-    _checkExistingRole();
+    _checkExistingSession();
   }
 
-  Future<void> _checkExistingRole() async {
-    print('--- RoleSelectionScreen: Checking for existing role...');
+  Future<void> _checkExistingSession() async {
     final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('access_token');
     final role = prefs.getString('user_role');
-    print('--- RoleSelectionScreen: Found role = $role');
     
-    if (role != null && mounted) {
-      print('--- RoleSelectionScreen: Auto-navigating to MainNavigation...');
+    if (token != null && role != null && mounted) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => MainNavigation(initialRole: role)),
@@ -33,239 +31,155 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
     }
   }
 
-  void _selectRole(String role) async {
-    // 🧠 SIMPAN ROLE ke local storage
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_role', role);
-    
-    print("🧠 Role saved to local storage: $role");
-
-    if (mounted) {
-      if (role == "candidate") {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const MainNavigation(initialRole: "candidate")),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const MainNavigation(initialRole: "recruiter")),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 60),
-              
-              // Animated entry for Title
-              _buildAnimatedEntry(
-                delay: 0,
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Apa tujuan kamu?",
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF1E293B),
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    SizedBox(height: 12),
-                    Text(
-                      "Pilih salah satu peran untuk menyesuaikan pengalaman pencarianmu.",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFF64748B),
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 48),
-
-              // 🔍 CANDIDATE CARD
-              _buildAnimatedEntry(
-                delay: 200,
-                child: _RoleCard(
-                  icon: Icons.person_search_rounded,
-                  title: "Cari Kerja",
-                  subtitle: "Temukan pekerjaan impian tanpa ribet urusan CV konvensional.",
-                  color: const Color(0xFF6366F1),
-                  onTap: () => _selectRole("candidate"),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // 🏢 RECRUITER CARD
-              _buildAnimatedEntry(
-                delay: 400,
-                child: _RoleCard(
-                  icon: Icons.business_center_rounded,
-                  title: "Cari Kandidat",
-                  subtitle: "Rekrut talenta terbaik berdasarkan skor skill dan video interview.",
-                  color: const Color(0xFF10B981),
-                  onTap: () => _selectRole("recruiter"),
-                ),
-              ),
-              
-              const Spacer(),
-              
-              Center(
-                child: Text(
-                  "Kamu bisa mengubah peran ini nanti di pengaturan.",
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey.shade500,
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0F172A), Color(0xFF1E293B), Color(0xFF334155)],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                const Spacer(flex: 2),
+                
+                // 💎 PREMIUM LOGO / ICON
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white.withOpacity(0.1), width: 1.5),
+                  ),
+                  child: const Hero(
+                    tag: 'app_logo',
+                    child: Icon(Icons.work_history_rounded, size: 80, color: Color(0xFF818CF8)),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-            ],
+                
+                const SizedBox(height: 32),
+                
+                const Text(
+                  "CariKerja",
+                  style: TextStyle(
+                    fontSize: 42,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: -1,
+                  ),
+                ),
+                const Text(
+                  "TANPA RESUME CV",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF94A3B8),
+                    letterSpacing: 4,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+
+                const Spacer(flex: 3),
+
+                // 🎯 SELEKSI PERAN (CANDIDATE)
+                _buildActionCard(
+                  title: "SAYA INGIN BEKERJA",
+                  subtitle: "Cari kerja lewat video interview singkat",
+                  icon: Icons.person_search_rounded,
+                  color: const Color(0xFF6366F1),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterPage(role: 'candidate'))),
+                ),
+
+                const SizedBox(height: 16),
+
+                // 🎯 SELEKSI PERAN (RECRUITER)
+                _buildActionCard(
+                  title: "SAYA INGIN REKRUT",
+                  subtitle: "Temukan talenta terbaik dengan cepat",
+                  icon: Icons.business_center_rounded,
+                  color: const Color(0xFF10B981),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterPage(role: 'recruiter'))),
+                ),
+
+                const Spacer(flex: 2),
+
+                // 🔗 LOGIN LINK
+                TextButton(
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginPage())),
+                  child: RichText(
+                    text: const TextSpan(
+                      text: "Sudah punya akun? ",
+                      style: TextStyle(color: Color(0xFF94A3B8)),
+                      children: [
+                        TextSpan(
+                          text: "Masuk Disini",
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildAnimatedEntry({required Widget child, required int delay}) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 800),
-      curve: Interval(
-        (delay / 1000).clamp(0.0, 1.0),
-        1.0,
-        curve: Curves.easeOutCubic,
-      ),
-      builder: (context, value, child) {
-        return Opacity(
-          opacity: value,
-          child: Transform.translate(
-            offset: Offset(0, 30 * (1 - value)),
-            child: child,
-          ),
-        );
-      },
-      child: child,
-    );
-  }
-}
-
-class _RoleCard extends StatefulWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _RoleCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  State<_RoleCard> createState() => _RoleCardState();
-}
-
-class _RoleCardState extends State<_RoleCard> {
-  bool _isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildActionCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) => setState(() => _isPressed = false),
-      onTapCancel: () => setState(() => _isPressed = false),
-      onTap: widget.onTap,
-      child: AnimatedScale(
-        scale: _isPressed ? 0.97 : 1.0,
-        duration: const Duration(milliseconds: 150),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: _isPressed ? widget.color.withOpacity(0.5) : Colors.transparent,
-              width: 2,
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(icon, color: color, size: 28),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+                  ),
+                ],
               ),
-              BoxShadow(
-                color: widget.color.withOpacity(0.05),
-                blurRadius: 40,
-                offset: const Offset(0, 12),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              // ICON
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: widget.color.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(widget.icon, color: widget.color, size: 32),
-              ),
-
-              const SizedBox(width: 20),
-
-              // TEXT
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.title,
-                      style: const TextStyle(
-                        fontSize: 19,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      widget.subtitle,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF94A3B8),
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Icon(
-                Icons.chevron_right_rounded,
-                color: Colors.grey.shade400,
-                size: 28,
-              )
-            ],
-          ),
+            ),
+            const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white24, size: 16),
+          ],
         ),
       ),
     );
