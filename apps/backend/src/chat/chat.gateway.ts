@@ -6,16 +6,33 @@ export class ChatGateway {
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('message')
-  handleMessage(@MessageBody() data: string, @ConnectedSocket() client: Socket): void {
-    console.log('--- Chat Message Received:', data);
-    
-    // Broadcast pesan ke semua (dalam satu room jika ada)
-    this.server.emit('message', data);
+  @SubscribeMessage('join_room')
+  handleJoinRoom(@MessageBody() room: string, @ConnectedSocket() client: Socket): void {
+    client.join(room);
+    console.log(`--- User joined room: ${room}`);
+  }
 
-    // Simulasi Respon Bot HR (delay 1.5 detik)
-    setTimeout(() => {
-      this.server.emit('message', `HR Bot: Terima kasih atas pesannya! Kami telah menerima video profil Anda. Kami akan segera menghubungi Anda kembali.`);
-    }, 1500);
+  @SubscribeMessage('send_message')
+  handleMessage(@MessageBody() data: any, @ConnectedSocket() client: Socket): void {
+    const { room, message, sender } = data;
+    console.log(`--- Chat Message in [${room}]: ${message}`);
+    
+    // Broadcast pesan ke spesifik room
+    this.server.to(room).emit('receive_message', {
+      sender: sender || 'User',
+      message: message,
+      timestamp: new Date().toISOString()
+    });
+
+    // Simulasi Respon Bot HR (Hanya jika pengirim bukan HR/Bot)
+    if (sender !== 'HR Bot' && sender !== 'SYSTEM') {
+      setTimeout(() => {
+        this.server.to(room).emit('receive_message', {
+          sender: 'HR Bot',
+          message: `Terima kasih atas pesannya! Kami sedang mereview video profil Anda.`,
+          timestamp: new Date().toISOString()
+        });
+      }, 2000);
+    }
   }
 }

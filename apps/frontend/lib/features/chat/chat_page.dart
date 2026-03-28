@@ -11,8 +11,9 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   late IO.Socket _socket;
   final _messageController = TextEditingController();
-  final List<String> _messages = [];
+  final List<dynamic> _messages = []; // Store as {sender: string, message: string}
   bool _isTyping = false;
+  final String _room = "chat_123";
 
   @override
   void initState() {
@@ -21,35 +22,39 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _initSocket() {
-    _socket = IO.io('http://10.0.2.2:3000', IO.OptionBuilder().setTransports(['websocket']).build());
-    _socket.onConnect((_) => print('--- Connected to Chat WebSocket'));
-    _socket.on('message', (data) {
-      if (mounted) {
-        setState(() {
-          final msg = data.toString();
-          if (msg.startsWith("Me:") || msg.startsWith("HR Bot:")) {
-            if (msg.startsWith("HR Bot:")) _isTyping = false;
-            _messages.add(msg);
-          } else {
-            _messages.add("HR: $msg");
-          }
-        });
-      }
+    _socket = IO.io('http://10.0.2.2:3000', IO.OptionBuilder()
+      .setTransports(['websocket'])
+      .disableAutoConnect()
+      .build());
+
+    _socket.connect();
+
+    _socket.onConnect((_) {
+      print('--- Connected to Chat WebSocket');
+      _socket.on('receive_message', (data) {
+        if (mounted) {
+          setState(() {
+            _messages.add(data);
+            if (data['sender'] == 'HR Bot') _isTyping = false;
+          });
+        }
+      });
+      _socket.emit('join_room', _room);
     });
 
-    // Simulasi typing (ini bisa ditingkatkan dengan event socket 'typing' sungguhan)
-    _socket.on('message', (data) {
-      if (data.toString().startsWith("Me:") && mounted) {
-        setState(() => _isTyping = true);
-      }
-    });
+    _socket.onDisconnect((_) => print('--- Disconnected from Chat WebSocket'));
   }
 
   void _sendMessage() {
     if (_messageController.text.isNotEmpty) {
-      final msg = "Me: ${_messageController.text}";
-      _socket.emit('message', msg);
+      final text = _messageController.text;
+      _socket.emit('send_message', {
+        "room": _room,
+        "message": text,
+        "sender": "Kandidat" 
+      });
       _messageController.clear();
+      setState(() => _isTyping = true);
     }
   }
 
@@ -79,13 +84,12 @@ class _ChatPageState extends State<ChatPage> {
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               itemCount: _messages.length,
-              reverse: false,
               itemBuilder: (context, index) {
                 final msg = _messages[index];
-                final isMe = msg.startsWith("Me:");
-                final cleanMsg = msg.replaceFirst("Me: ", "").replaceFirst("HR Bot: ", "").replaceFirst("HR: ", "");
+                final isMe = msg['sender'] == "Kandidat";
+                final text = msg['message'] ?? "";
                 
-                return _buildChatBubble(cleanMsg, isMe);
+                return _buildChatBubble(text, isMe);
               },
             ),
           ),

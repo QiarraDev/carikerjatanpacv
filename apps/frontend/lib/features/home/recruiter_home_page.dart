@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../job/post_job_screen.dart';
+import 'candidate_list_screen.dart';
 
 class RecruiterHomeScreen extends StatelessWidget {
   const RecruiterHomeScreen({super.key});
@@ -36,7 +37,10 @@ class RecruiterHomeScreen extends StatelessWidget {
               subtitle: "Browse kandidat terbaik untuk perusahaanmu",
               color: const Color(0xFF10B981),
               onTap: () {
-                // Feature coming soon
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CandidateListScreen()),
+                );
               },
             ),
             const SizedBox(height: 32),

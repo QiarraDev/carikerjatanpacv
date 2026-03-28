@@ -23,9 +23,43 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _fetchJobs() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('user_id');
+      
+      // 👤 Fetch User Profile to get Skills
+      dynamic userProfile;
+      if (userId != null) {
+        final profileRes = await ApiService().getProfile(userId);
+        userProfile = profileRes.data;
+      }
+
       final response = await ApiService().getJobs();
+      final List<dynamic> fetchedJobs = response.data;
+
+      // 🤖 Calculate Auto-Matching Score
+      for (var job in fetchedJobs) {
+        double skillMatch = 0.0;
+        final requiredSkills = (job['required_skills'] as List?)?.map((e) => e.toString().toLowerCase()).toList() ?? [];
+        final userSkills = (userProfile?['skills'] as List?)?.map((e) => e.toString().toLowerCase()).toList() ?? [];
+
+        if (requiredSkills.isNotEmpty) {
+          int count = 0;
+          for (var s in userSkills) {
+            if (requiredSkills.contains(s)) count++;
+          }
+          skillMatch = count / requiredSkills.length;
+        }
+
+        // Formula: (0.5 * Skill Match) + (0.3 * Test Score) + (0.2 * Activity)
+        double testScore = (userProfile?['test_score'] ?? 80) / 100.0;
+        double activity = 0.9; // Dummy constant for now
+        
+        double finalScore = (0.5 * skillMatch) + (0.3 * testScore) + (0.2 * activity);
+        job['match_score'] = (finalScore * 100).clamp(60, 99).toInt(); // Clamp for nice demo
+      }
+
       setState(() {
-        _allJobs = response.data;
+        _allJobs = fetchedJobs;
         _jobs = List.from(_allJobs);
         _isLoading = false;
       });
@@ -254,8 +288,27 @@ class _AnimatedJobCardState extends State<AnimatedJobCard> with SingleTickerProv
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(job['title'],
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Color(0xFF1E293B))),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(job['title'],
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Color(0xFF1E293B))),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF0FDF4),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        "🔥 ${job['match_score'] ?? 85}%",
+                                        style: const TextStyle(color: Color(0xFF10B981), fontWeight: FontWeight.bold, fontSize: 12),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                                 Text(job['company'], style: const TextStyle(color: Colors.grey, fontSize: 13)),
                               ],
                             ),

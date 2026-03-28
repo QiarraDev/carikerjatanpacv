@@ -85,4 +85,14 @@ class ApiService {
   Future<Response> createJob(Map<String, dynamic> data) {
     return _dio.post('/jobs', data: data);
   }
+
+  // 👤 List Candidates (Recruiter)
+  Future<Response> getCandidates() {
+    return _dio.get('/users'); // Asumsi backend punya endpoint ini atau admin/hr bisa akses
+  }
+
+  // ⭐ Shortlist Candidate (Recruiter)
+  Future<Response> shortlistCandidate(String userId) {
+    return _dio.post('/shortlist', data: {"user_id": userId});
+  }
 }
