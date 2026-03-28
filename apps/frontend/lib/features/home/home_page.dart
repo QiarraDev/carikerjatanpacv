@@ -184,25 +184,21 @@ class _AnimatedJobCardState extends State<AnimatedJobCard> with SingleTickerProv
   }
 
   void _apply(BuildContext context) async {
-    final score = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AssessmentPage(jobId: widget.job['_id'], jobTitle: widget.job['title']),
-      ),
-    );
+    final jobId = widget.job['_id'];
+    try {
+      // 💼 Apply Job (Real)
+      await ApiService().applyJob(jobId);
 
-    if (score != null) {
-      try {
-        final prefs = await SharedPreferences.getInstance();
-        final userId = prefs.getString('user_id');
-        await ApiService().submitApplication(userId!, widget.job['_id'], 'https://mock-video-url.com');
-        if (mounted) {
-           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lamaran Berhasil Dikirim!')));
-        }
-      } catch (e) {
-        if (mounted) {
-           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal mengirim lamaran!')));
-        }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Lamaran terkirim 🚀")),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Gagal mengirim lamaran: $e")),
+        );
       }
     }
   }

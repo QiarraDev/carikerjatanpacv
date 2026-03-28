@@ -58,11 +58,26 @@ class ApiService {
     });
   }
 
+  // 💼 Apply Job (Real)
+  Future<Response> applyJob(String jobId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+    return _dio.post('/applications', data: {
+      'user_id': userId,
+      'job_id': jobId,
+    });
+  }
+
   Future<Response> getProfile(String userId) {
     return _dio.get('/users/$userId');
   }
 
   Future<Response> updateProfile(String id, Map<String, dynamic> data) async {
     return _dio.patch('/users/$id', data: data);
+  }
+
+  // 🔗 Simpan Profile Video (Legacy Support / Dedicated Endpoint)
+  Future<Response> saveProfileVideo(String userId, String url) async {
+    return _dio.patch('/users/$userId', data: {"video_url": url});
   }
 }

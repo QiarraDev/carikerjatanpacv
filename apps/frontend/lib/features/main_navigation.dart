@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'home/home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'home/candidate_home_page.dart';
+import 'home/recruiter_home_page.dart';
 import 'profile/profile_page.dart';
 import 'chat/chat_page.dart';
 
 class MainNavigation extends StatefulWidget {
-  const MainNavigation({super.key});
+  final String? initialRole;
+  const MainNavigation({super.key, this.initialRole});
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
@@ -12,11 +15,34 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
-  final List<Widget> _pages = [
-    const HomePage(),
-    const ChatPage(),
-    const ProfilePage(),
-  ];
+  String? _userRole;
+
+  @override
+  void initState() {
+    super.initState();
+    _userRole = widget.initialRole;
+    if (_userRole == null) _loadUserRole();
+  }
+
+  Future<void> _loadUserRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userRole = prefs.getString('user_role');
+    });
+  }
+
+  List<Widget> get _pages {
+    Widget homeScreen = const CandidateHomeScreen();
+    if (_userRole == 'recruiter') {
+      homeScreen = const RecruiterHomeScreen();
+    }
+
+    return [
+      homeScreen,
+      const ChatPage(),
+      const ProfilePage(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +51,19 @@ class _MainNavigationState extends State<MainNavigation> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
-        selectedItemColor: const Color(0xFF6366F1),
+        selectedItemColor: _userRole == 'recruiter' ? const Color(0xFF10B981) : const Color(0xFF6366F1),
         unselectedItemColor: Colors.grey,
         showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Cari'),
-          BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), label: 'Lamaran'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profil'),
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(_userRole == 'recruiter' ? Icons.dashboard : Icons.search), 
+            label: _userRole == 'recruiter' ? 'Dashboard' : 'Cari'
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(_userRole == 'recruiter' ? Icons.people : Icons.assignment_outlined), 
+            label: _userRole == 'recruiter' ? 'Kandidat' : 'Lamaran'
+          ),
+          const BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profil'),
         ],
       ),
     );

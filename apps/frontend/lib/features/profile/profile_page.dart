@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:io';
 import '../../core/api_service.dart';
+import '../../core/upload_service.dart';
 import 'edit_profile_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -57,9 +58,28 @@ class _ProfilePageState extends State<ProfilePage> {
         });
 
       setState(() => _isUploading = true);
-      final prefs = await SharedPreferences.getInstance();
-      await ApiService().updateProfile(prefs.getString('user_id')!, {'video_url': 'https://mock-video.com'});
-      setState(() => _isUploading = false);
+      
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final userId = prefs.getString('user_id');
+        
+        // 🎥 1. UPLOAD (Mock/Cloudinary Sim)
+        final url = await UploadService.uploadVideo(_videoFile!);
+        
+        if (url != null) {
+          // 🧠 2. SAVE ke backend
+          await ApiService().saveProfileVideo(userId!, url);
+          
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Video Resume Berhasil Diunggah!')));
+            _fetchProfile(); // Refresh for strength calculation
+          }
+        }
+      } catch (e) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal mengunggah video!')));
+      } finally {
+        if (mounted) setState(() => _isUploading = false);
+      }
     }
   }
 

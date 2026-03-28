@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'features/splash/splash_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'features/auth/role_selection_page.dart';
+import 'features/main_navigation.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,7 +38,25 @@ class MyApp extends StatelessWidget {
         ),
       ),
       themeMode: ThemeMode.system,
-      home: const SplashPage(),
+      home: FutureBuilder<String?>(
+        future: _checkRole(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          }
+          if (snapshot.hasData && snapshot.data != null && snapshot.data!.isNotEmpty) {
+            return MainNavigation(initialRole: snapshot.data);
+          }
+          return const RoleSelectionScreen();
+        },
+      ),
     );
+  }
+
+  Future<String?> _checkRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    final role = prefs.getString('user_role');
+    print('--- MyApp: Found user_role = $role');
+    return role;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/api_service.dart';
+import 'role_selection_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -26,12 +27,16 @@ class _RegisterPageState extends State<RegisterPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Registrasi Berhasil! Silakan Login.')),
         );
-        Navigator.pop(context); // Kembali ke Login
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
+        );
       }
     } catch (e) {
+      print('--- Flutter: Register Error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registrasi Gagal! Coba lagi.')),
+          SnackBar(content: Text('Registrasi Gagal: $e')),
         );
       }
     } finally {
