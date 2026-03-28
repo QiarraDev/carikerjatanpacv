@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/api_service.dart';
 import 'role_selection_page.dart';
 
@@ -18,6 +19,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void _register() async {
     setState(() => _isLoading = true);
+    try {
       final response = await ApiService().register(
         _nameController.text,
         _emailController.text,
