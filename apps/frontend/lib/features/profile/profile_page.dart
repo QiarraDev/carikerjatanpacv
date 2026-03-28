@@ -6,6 +6,7 @@ import 'dart:io';
 import '../../core/api_service.dart';
 import '../../core/upload_service.dart';
 import 'edit_profile_page.dart';
+import '../auth/role_selection_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -330,7 +331,32 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
 
-            const SizedBox(height: 40),
+            // 🔥 DEBUG BUTTON: SWITCH ROLE
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
+              child: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.remove('user_role');
+                    if (mounted) {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
+                          (route) => false);
+                    }
+                  },
+                  icon: const Icon(Icons.swap_horiz, color: Colors.grey),
+                  label: const Text("GANTI PERAN (TESTING MODE)", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: BorderSide(color: Colors.grey.shade300),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -3,12 +3,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'features/auth/role_selection_page.dart';
 import 'features/main_navigation.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
+  final role = prefs.getString('user_role');
+  print('--- Global main(): Initial role = $role');
+  runApp(MyApp(initialRole: role));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String? initialRole;
+  const MyApp({super.key, this.initialRole});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +22,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        primarySwatch: Colors.indigo,
+        primaryColor: const Color(0xFF6366F1),
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF6366F1)),
         scaffoldBackgroundColor: const Color(0xFFF8FAFC),
         fontFamily: 'Inter',
@@ -38,25 +43,9 @@ class MyApp extends StatelessWidget {
         ),
       ),
       themeMode: ThemeMode.system,
-      home: FutureBuilder<String?>(
-        future: _checkRole(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(body: Center(child: CircularProgressIndicator()));
-          }
-          if (snapshot.hasData && snapshot.data != null && snapshot.data!.isNotEmpty) {
-            return MainNavigation(initialRole: snapshot.data);
-          }
-          return const RoleSelectionScreen();
-        },
-      ),
+      home: (initialRole != null && initialRole!.isNotEmpty)
+          ? MainNavigation(initialRole: initialRole)
+          : const RoleSelectionScreen(),
     );
-  }
-
-  Future<String?> _checkRole() async {
-    final prefs = await SharedPreferences.getInstance();
-    final role = prefs.getString('user_role');
-    print('--- MyApp: Found user_role = $role');
-    return role;
   }
 }

@@ -80,4 +80,9 @@ class ApiService {
   Future<Response> saveProfileVideo(String userId, String url) async {
     return _dio.patch('/users/$userId', data: {"video_url": url});
   }
+
+  // 📝 Create Job (Recruiter)
+  Future<Response> createJob(Map<String, dynamic> data) {
+    return _dio.post('/jobs', data: data);
+  }
 }

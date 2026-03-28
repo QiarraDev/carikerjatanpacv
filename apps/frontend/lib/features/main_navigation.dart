@@ -47,6 +47,10 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 0, // Hidden but can have overlay
+        title: Text("Role Debug: ${_userRole ?? 'Loading...'}"),
+      ),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

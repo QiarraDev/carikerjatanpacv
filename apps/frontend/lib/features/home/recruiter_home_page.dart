@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../job/post_job_screen.dart';
 
 class RecruiterHomeScreen extends StatelessWidget {
   const RecruiterHomeScreen({super.key});
@@ -21,6 +22,12 @@ class RecruiterHomeScreen extends StatelessWidget {
               title: "Post Job",
               subtitle: "Buat lowongan baru dengan video briefing",
               color: const Color(0xFF10B981),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PostJobScreen()),
+                );
+              },
             ),
             const SizedBox(height: 16),
             _recruiterCard(
@@ -28,6 +35,9 @@ class RecruiterHomeScreen extends StatelessWidget {
               title: "Lihat Kandidat",
               subtitle: "Browse kandidat terbaik untuk perusahaanmu",
               color: const Color(0xFF10B981),
+              onTap: () {
+                // Feature coming soon
+              },
             ),
             const SizedBox(height: 32),
             const Align(
@@ -61,56 +71,60 @@ class RecruiterHomeScreen extends StatelessWidget {
     required String title,
     required String subtitle,
     required Color color,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 15,
-            color: Colors.black.withOpacity(0.05),
-            offset: const Offset(0, 8),
-          )
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 15,
+              color: Colors.black.withOpacity(0.05),
+              offset: const Offset(0, 8),
+            )
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, size: 30, color: color),
             ),
-            child: Icon(icon, size: 30, color: color),
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E293B),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF64748B),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF64748B),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400)
-        ],
+            Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400)
+          ],
+        ),
       ),
     );
   }

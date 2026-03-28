@@ -19,12 +19,16 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
   }
 
   Future<void> _checkExistingRole() async {
+    print('--- RoleSelectionScreen: Checking for existing role...');
     final prefs = await SharedPreferences.getInstance();
     final role = prefs.getString('user_role');
+    print('--- RoleSelectionScreen: Found role = $role');
+    
     if (role != null && mounted) {
+      print('--- RoleSelectionScreen: Auto-navigating to MainNavigation...');
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const MainNavigation()),
+        MaterialPageRoute(builder: (_) => MainNavigation(initialRole: role)),
       );
     }
   }
