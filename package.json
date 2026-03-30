@@ -1,0 +1,13 @@
+{
+  "name": "carikerjatanpacv-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "cd apps/backend && npm install",
+    "build": "cd apps/backend && npm run build",
+    "start": "cd apps/backend && npm start"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
