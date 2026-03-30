@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiService {
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'http://10.0.2.2:3000/api', // Khusus Emulator Android
+      baseUrl: 'https://carikerjatanpacv-production.up.railway.app/api', // 🚀 Terkoneksi ke Cloud (Railway)
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
     ),
