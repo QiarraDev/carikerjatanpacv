@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiService {
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'http://10.0.2.2:3000', // Khusus Emulator Android
+      baseUrl: 'http://10.0.2.2:3000/api', // Khusus Emulator Android
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
     ),
@@ -36,6 +36,11 @@ class ApiService {
 
   Future<Response> getJobs() {
     return _dio.get('/jobs');
+  }
+
+  // 🧠 Auto-Matching Jobs
+  Future<Response> getRecommendedJobs(String userId) {
+    return _dio.get('/jobs/match/$userId');
   }
 
   Future<Response> getAssessment(String jobId) {

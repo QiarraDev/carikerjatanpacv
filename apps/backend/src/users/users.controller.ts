@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Put, Body, UseGuards, Req, Param } from '@nestjs/common';
+import { Controller, Get, Patch, Put, Post, Body, UseGuards, Req, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -10,6 +10,11 @@ export class UsersController {
   @Get('profile')
   async getProfile(@Req() req: any) {
     return this.usersService.findById(req.user.userId);
+  }
+
+  @Post('video')
+  async saveVideo(@Body('user_id') userId: string, @Body('video_url') videoUrl: string) {
+    return this.usersService.update(userId, { video_url: videoUrl });
   }
 
   @UseGuards(AuthGuard('jwt'))

@@ -10,6 +10,12 @@ export class Job extends Document {
   company: string;
 
   @Prop({ required: true })
+  salary: number;
+
+  @Prop({ required: true })
+  location: string;
+
+  @Prop({ required: true })
   description: string;
 
   @Prop([String])

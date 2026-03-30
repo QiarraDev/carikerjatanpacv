@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../auth/login_page.dart';
+import '../auth/onboarding_screen.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -26,7 +26,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
+          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
         );
       }
     });

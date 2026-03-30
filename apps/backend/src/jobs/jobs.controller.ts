@@ -23,4 +23,9 @@ export class JobsController {
   async findOne(@Param('id') id: string) {
     return this.jobsService.findOne(id);
   }
+
+  @Get('match/:userId')
+  async matchJobs(@Param('userId') userId: string) {
+    return this.jobsService.getMatchingJobs(userId);
+  }
 }

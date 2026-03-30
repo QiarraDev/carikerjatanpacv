@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'features/auth/onboarding_screen.dart';
 import 'features/auth/role_selection_page.dart';
 import 'features/main_navigation.dart';
 
@@ -7,13 +8,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   final role = prefs.getString('user_role');
-  print('--- Global main(): Initial role = $role');
-  runApp(MyApp(initialRole: role));
+  final seenOnboarding = prefs.getBool('seen_onboarding') ?? false;
+  
+  print('--- Global main(): Initial role = $role, Seen Onboarding = $seenOnboarding');
+  runApp(MyApp(initialRole: role, seenOnboarding: seenOnboarding));
 }
 
 class MyApp extends StatelessWidget {
   final String? initialRole;
-  const MyApp({super.key, this.initialRole});
+  final bool seenOnboarding;
+
+  const MyApp({super.key, this.initialRole, required this.seenOnboarding});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +50,9 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       home: (initialRole != null && initialRole!.isNotEmpty)
           ? MainNavigation(initialRole: initialRole)
-          : const RoleSelectionScreen(),
+          : seenOnboarding
+              ? const RoleSelectionScreen()
+              : const OnboardingScreen(),
     );
   }
 }
