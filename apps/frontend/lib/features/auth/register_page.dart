@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
 import '../../core/api_service.dart';
 import 'role_selection_page.dart';
 
@@ -38,8 +39,19 @@ class _RegisterPageState extends State<RegisterPage> {
         );
         Navigator.pop(context); // Go back to login
       }
-    } catch (e) {
+    } on DioException catch (e) {
       print('--- Flutter: Register Error: $e');
+      if (mounted) {
+        final serverMessage = e.response?.data['message'] ?? 'Terjadi kesalahan jaringan';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Mendaftar Gagal: $serverMessage (Mungkin email ini sudah dipakai?)'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } catch (e) {
+      print('--- Flutter: Catch All Error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Registrasi Gagal: $e')),

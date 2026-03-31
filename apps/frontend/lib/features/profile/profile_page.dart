@@ -224,10 +224,34 @@ class _ProfilePageState extends State<ProfilePage> {
                           opacity: 0.3
                         )
                       ),
-                      child: Center(
-                         child: _controller != null && _controller!.value.isInitialized
-                            ? ClipRRect(borderRadius: BorderRadius.circular(16), child: VideoPlayer(_controller!))
-                            : const Icon(Icons.play_circle_fill, color: Colors.white70, size: 64),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Center(
+                            child: _controller != null && _controller!.value.isInitialized
+                                ? GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _controller!.value.isPlaying ? _controller!.pause() : _controller!.play();
+                                      });
+                                    },
+                                    child: ClipRRect(borderRadius: BorderRadius.circular(16), child: VideoPlayer(_controller!)),
+                                  )
+                                : GestureDetector(
+                                    onTap: () {
+                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Hei, ini video lama (bohongan) 😆! Klik "UPDATE VIDEO" untuk mengunggah wajah asli Anda ke awan.')));
+                                    },
+                                    child: const Icon(Icons.play_circle_fill, color: Colors.white70, size: 64),
+                                  ),
+                          ),
+                          // Overlay tombol pause/play cerdas
+                          if (_controller != null && _controller!.value.isInitialized && !_controller!.value.isPlaying)
+                            Center(
+                              child: IgnorePointer(
+                                child: Icon(Icons.play_arrow, color: Colors.white.withOpacity(0.7), size: 60),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 16),
