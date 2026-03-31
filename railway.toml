@@ -1,0 +1,7 @@
+[build]
+buildCommand = "cd apps/backend && npm install && npm run build"
+
+[deploy]
+startCommand = "cd apps/backend && npm start"
+healthcheckPath = "/api"
+restartPolicyType = "on_failure"
