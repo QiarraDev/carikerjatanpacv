@@ -37,6 +37,20 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         _userData = response.data;
         _isLoading = false;
+
+        // Auto putar video dari awan jika ada
+        if (_userData?['video_url'] != null && _userData!['video_url'].isNotEmpty) {
+          _controller?.dispose();
+          _controller = VideoPlayerController.networkUrl(Uri.parse(_userData!['video_url']))
+            ..initialize().then((_) {
+              if (mounted) {
+                setState(() {});
+                _controller?.setVolume(0); // Supaya tidak otomatis berisik (Mutestreaming)
+                _controller?.play();
+                _controller?.setLooping(true);
+              }
+            });
+        }
       });
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
@@ -50,34 +64,37 @@ class _ProfilePageState extends State<ProfilePage> {
     );
 
     if (video != null) {
-      _videoFile = File(video.path);
-      _controller = VideoPlayerController.file(_videoFile!)
-        ..initialize().then((_) {
-          setState(() {});
-          _controller?.play();
-          _controller?.setLooping(true);
-        });
-
       setState(() => _isUploading = true);
       
       try {
         final prefs = await SharedPreferences.getInstance();
         final userId = prefs.getString('user_id');
         
-        // 🎥 1. UPLOAD (Mock/Cloudinary Sim)
-        final url = await UploadService.uploadVideo(_videoFile!);
+        // Membaca video menjadi Bytes (Super aman untuk Android/iOS/Web sekaligus!)
+        final bytes = await video.readAsBytes();
         
-        if (url != null) {
-          // 🧠 2. SAVE ke backend
-          await ApiService().saveProfileVideo(userId!, url);
-          
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Video Resume Berhasil Diunggah!')));
-            _fetchProfile(); // Refresh for strength calculation
-          }
+        // 🚀 Tembakkan langsung roket video ini ke Railway & Cloudinary
+        await ApiService().uploadPitchVideo(
+          userId!,
+          fileBytes: bytes,
+          fileName: video.name,
+        );
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('🚀 Video Pitching Berhasil Terbang ke Cloud!'),
+              backgroundColor: Color(0xFF4F46E5),
+            )
+          );
+          _fetchProfile(); // Refresh layar supaya videonya langsung dimainkan
         }
       } catch (e) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal mengunggah video!')));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Aduh! Gagal mengunggah video. Pastikan jaringan stabil!'))
+          );
+        }
       } finally {
         if (mounted) setState(() => _isUploading = false);
       }

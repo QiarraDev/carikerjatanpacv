@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:typed_data';
 
 class ApiService {
   final Dio _dio = Dio(
@@ -100,5 +101,26 @@ class ApiService {
   // ⭐ Shortlist Candidate (Recruiter)
   Future<Response> shortlistCandidate(String userId) {
     return _dio.post('/shortlist', data: {"user_id": userId});
+  }
+
+  // 🚀 Upload Pitch Video ke Cloudinary via Backend
+  Future<Response> uploadPitchVideo(String userId, {String? filePath, Uint8List? fileBytes, String? fileName}) async {
+    MultipartFile multipartFile;
+    if (fileBytes != null) {
+      multipartFile = MultipartFile.fromBytes(fileBytes, filename: fileName ?? 'video.mp4');
+    } else if (filePath != null) {
+      multipartFile = await MultipartFile.fromFile(filePath, filename: fileName ?? 'video.mp4');
+    } else {
+      throw Exception('Harus memasukkan filePath atau fileBytes');
+    }
+
+    final formData = FormData.fromMap({
+      'video': multipartFile,
+    });
+
+    return _dio.post(
+      '/users/upload-video/$userId',
+      data: formData,
+    );
   }
 }
