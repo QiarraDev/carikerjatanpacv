@@ -9,6 +9,7 @@ import { JobsModule } from './jobs/jobs.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { AssessmentModule } from './assessment/assessment.module';
 import { ChatGateway } from './chat/chat.gateway';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ChatGateway } from './chat/chat.gateway';
     JobsModule,
     ApplicationsModule,
     AssessmentModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService, ChatGateway],

@@ -1,15 +1,31 @@
-import { Controller, Get, Patch, Put, Post, Body, UseGuards, Req, Param } from '@nestjs/common';
+import { Controller, Get, Patch, Put, Post, Body, UseGuards, Req, Param, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
   async getProfile(@Req() req: any) {
     return this.usersService.findById(req.user.userId);
+  }
+
+  @Post('upload-video/:userId')
+  @UseInterceptors(FileInterceptor('video'))
+  async uploadPitchVideo(
+    @Param('userId') userId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) throw new BadRequestException('Beri file video!');
+    const uploadResult = await this.cloudinaryService.uploadVideo(file) as any;
+    return this.usersService.update(userId, { video_url: uploadResult.secure_url });
   }
 
   @Post('video')
