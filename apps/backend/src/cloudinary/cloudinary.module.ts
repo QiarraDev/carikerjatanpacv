@@ -10,21 +10,23 @@ export class CloudinaryModule implements OnModuleInit {
   private readonly logger = new Logger(CloudinaryModule.name);
 
   onModuleInit() {
-    const cloudinaryUrl = process.env.CLOUDINARY_URL;
-    if (!cloudinaryUrl) {
-      this.logger.warn('⚠️  CLOUDINARY_URL tidak ditemukan di environment! Upload video tidak akan berfungsi.');
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const apiKey = process.env.CLOUDINARY_API_KEY;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+    if (!cloudName || !apiKey || !apiSecret) {
+      this.logger.warn('⚠️  CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_KEY / CLOUDINARY_API_SECRET belum diset!');
       return;
     }
 
-    // Cara yang benar: biarkan SDK Cloudinary membaca CLOUDINARY_URL secara native
-    // cloudinary.config(true) memaksa SDK untuk membaca ulang ENV vars
-    cloudinary.config(true);
+    // Konfigurasi eksplisit tanpa URL parsing — 100% aman!
+    cloudinary.config({
+      cloud_name: cloudName,
+      api_key: apiKey,
+      api_secret: apiSecret,
+      secure: true,
+    });
 
-    const config = cloudinary.config();
-    if (config.cloud_name) {
-      this.logger.log(`✅ Cloudinary terhubung ke cloud: ${config.cloud_name} (key: ${config.api_key})`);
-    } else {
-      this.logger.error('❌ Cloudinary gagal terkonfigurasi! Periksa format CLOUDINARY_URL di Railway Variables.');
-    }
+    this.logger.log(`✅ Cloudinary terhubung ke cloud: ${cloudName} (key: ${apiKey})`);
   }
 }
